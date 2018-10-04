@@ -45,7 +45,7 @@ namespace ip3d_tpc1
         protected override void Initialize()
         {
                                    
-            Window.Title = "EP3D-TPC1";
+            Window.Title = "EP3D-TPC1 - JORGE NORO - 15705";
             IsMouseVisible = true;
 
             // ensure that the culling is happening for counterclockwise polygons

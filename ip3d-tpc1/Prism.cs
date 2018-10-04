@@ -125,6 +125,10 @@ namespace ip3d_tpc1
                 ShowWireframe = !ShowWireframe;
             }
 
+            /*
+             * We could keep the model from updating if the sides are constrained to a min or max value, 
+             * but this way we can change the color if for some reason with don't like the current
+             */ 
             if (OldKeyboardState.IsKeyUp(Keys.OemPlus) && ks.IsKeyDown(Keys.OemPlus))
             {
                 Sides = Sides + 1 > MAX_SIDES ? Sides : Sides + 1;
