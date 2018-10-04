@@ -2,52 +2,84 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ip3d_tpc1
 {
+    /*
+     * Prism will extend the base GameComponent class
+     * TODO: Evaluate if DrawableGameComponent would be a better option and why
+     */
     class Prism : GameComponent
     {
-
+        
+        // define some constants for the 
+        // number of sides. These will be our constrains
         const int MAX_SIDES = 10;
         const int MIN_SIDES = 3;
 
+        // the prism dimensions
         public float Radius;
         public float Height;
         public int Sides;
 
+        // if true, a geometry update is needed
         bool DirtyGeometry;
 
+        // the current model rotation        
         Vector3 ModelRotation;
+        // TODO: add some scale and position for some fun
 
+        // world transform or matrix is the matrix we will multiply 
+        // our vertices for. this transforms the vertices from local
+        // space to world space
         Matrix WorldTransform;
+
+        // the vertex list.
+        // the vertex is not a position, it is named after it.
+        // we could store any values we want and interpet those values in
+        // the shader as we want.
+        // in this case, we create a list of vertices to hold a position and a color
+        // giving us two vector3. if we were using vertexbuffers, our stride would be of 6
         VertexPositionColor[] VertexList;
+
+        // the effect(shader) to apply when rendering
+        // we will use Monogame built in BasicEffect for the purpose
         BasicEffect ColorShaderEffect;
+
+        // wireframe rendering toogle
         bool ShowWireframe;
 
+        // an array containing colors available for drawing
+        Color[] ColorArray;
+
+        // used to detect 'just' pressed keys
         KeyboardState OldKeyboardState;
 
+        // constructor
         public Prism(Game game, float radius = 5f, float height = 10f, int sides = 3) : base(game)
         {
 
+            // basic assign
             Radius = radius;
             Height = height;
             Sides = sides;
             DirtyGeometry = false;
 
             ModelRotation = Vector3.Zero;            
-            WorldTransform = Matrix.Identity;
+            WorldTransform = Matrix.Identity;  // hey, I know this word from Algebra!
 
-            ColorShaderEffect = new BasicEffect(game.GraphicsDevice);
-            ColorShaderEffect.LightingEnabled = false;
-            ColorShaderEffect.VertexColorEnabled = true;
-            ShowWireframe = false;
+            // create amd setting up the effect settings
+            ColorShaderEffect = new BasicEffect(game.GraphicsDevice);  
+            ColorShaderEffect.LightingEnabled = false;  // we won't be using light. we would need normals for that
+            ColorShaderEffect.VertexColorEnabled = true;  // we do want color though
+            ShowWireframe = true;  // enable out of the box wireframe
 
             OldKeyboardState = Keyboard.GetState();
 
+            // create the array
+            ColorArray = CreateColorArray();
+
+            // create the geometry
             CreateGeometry();
 
         }
@@ -56,6 +88,16 @@ namespace ip3d_tpc1
         {
 
             KeyboardState ks = Keyboard.GetState();
+
+            /*
+             * This here is just some functionality for fun.
+             * The code is pretty readable. We detect a key press od down
+             * and we perform an action.
+             * 
+             * Notice the sides add and subtract constrains.
+             * We we alter the geometry, we also flag it as dirty.
+             * 
+             */ 
 
             float rotationIncr = 0.1f;
             if (ks.IsKeyDown(Keys.D1))
@@ -97,12 +139,15 @@ namespace ip3d_tpc1
 
             OldKeyboardState = ks;
 
+            // if the geomwtry is dirty, create a new one.
             if (DirtyGeometry)
             {
                 CreateGeometry();
                 DirtyGeometry = false;
             }
 
+            // update the world transform with all our current stats.
+            // TODO: update this with position and scale.
             WorldTransform = Matrix.CreateRotationY(ModelRotation.Y) * Matrix.CreateRotationX(ModelRotation.X) * Matrix.CreateRotationZ(ModelRotation.Z);
 
             base.Update(gameTime);
@@ -111,20 +156,26 @@ namespace ip3d_tpc1
         public void Draw(GameTime gameTime)
         {
 
+            // render the geometry using a triangle list
+            // we only use one pass of the shader, but we could have more.
             ColorShaderEffect.VertexColorEnabled = true;
             ColorShaderEffect.CurrentTechnique.Passes[0].Apply();
-            Game.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.TriangleList, VertexList, 0, Sides * 4);
+            Game.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.TriangleList, VertexList, 0, Sides * 4); // Sides * 4 because for each side, there are 4 tris. Top, Bottom, and 2 for the sides
             
             if (ShowWireframe)
             {
-                ColorShaderEffect.VertexColorEnabled = false;
+                // the color of the wireframe is white by default
+                // it is stored in the DiffuseColor porperty of the effect
+
+                ColorShaderEffect.VertexColorEnabled = false;  // deactivate the color channel
                 ColorShaderEffect.CurrentTechnique.Passes[0].Apply();
-                Game.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineStrip, VertexList, 0, VertexList.Length - 1);
+                Game.GraphicsDevice.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.LineStrip, VertexList, 0, VertexList.Length - 1);  // here we connect all vertices width a line strip
 
             }
 
         }
 
+        // updates the effect matrices
         public void UpdateShaderMatrices(Matrix viewTransform, Matrix projectionTransform)
         {
             ColorShaderEffect.Projection = projectionTransform;
@@ -132,13 +183,44 @@ namespace ip3d_tpc1
             ColorShaderEffect.World = WorldTransform;
         }
 
+        // creates and returns the color array
+        private Color[] CreateColorArray()
+        {
+            
+            // colors were chosen randomly by me, no preferences here
+
+            Color[] c = new Color[10];
+
+            c[0] = Color.RosyBrown;
+            c[1] = Color.Coral;
+            c[2] = Color.DarkGreen;
+            c[3] = Color.DarkOrchid;
+            c[4] = Color.MonoGameOrange;
+            c[5] = Color.Olive;
+            c[6] = Color.Navy;
+            c[7] = Color.RosyBrown;
+            c[8] = Color.Sienna;
+            c[9] = Color.Maroon;
+
+            return c;
+        }
+
+        // builds the geometry
         private void CreateGeometry()
         {
-
+            // first, the array of vertices is created
             VertexList = new VertexPositionColor[Sides * 12];  // number of sides * 12 because we need 12 vertices to define 4 triangles
+                                                               // 4 tris because for each side, there are 4 tris. Top, Bottom, and 2 for the sides
 
+            // this is the length of a unit circunference
             float pi2 = (float)Math.PI * 2;
+
+            // the latest position we created.
+            // we begin by starting at length 0 in the circunference
             Vector3 lastPosition = new Vector3(Radius, 0f, 0f);
+
+            // a random number generator for random color picking
+            Random rnd = new Random();
 
             // generate tris
             for (int i = 0; i < Sides; i++)
@@ -146,32 +228,44 @@ namespace ip3d_tpc1
                 // we divide a unit circle circunference length by the number of sides
                 float segment = pi2 / Sides * (i + 1); // this gives the next arc length
 
-                float x = (float)Math.Cos(segment) * Radius;
-                float z = (float)Math.Sin(segment) * Radius;
+                float x = (float)Math.Cos(segment) * Radius;  // apply cos to the arc length, and get the x value from the arc center
+                float z = (float)Math.Sin(segment) * Radius;  // same but sin
 
+                // vector with the new position
                 Vector3 newPosition = new Vector3(x, 0.0f, z);
+
+                // pick a color (colors can, and most probably will, be repeated)
+                Color sideColor = ColorArray[rnd.Next(10)];
+
+                /*
+                 * The vertices will be created clockwise so they don't get culled
+                 * We create four triangles for each side.
+                 * The upper cap, the bottom cap, and 2 for the sides
+                 * 
+                 */ 
 
                 // create bottom cap
                 VertexList[12 * i + 0] = new VertexPositionColor(Vector3.Zero, Color.Blue);  // center coord
                 VertexList[12 * i + 1] = new VertexPositionColor(newPosition, Color.Blue);  // new coord
                 VertexList[12 * i + 2] = new VertexPositionColor(lastPosition, Color.Blue);  // last coord
-                // 12 is the stride, i is the index, 0, 1, 2 etc is the increment
+                // 12 is the stride, i is the index, 0, 1, 2 etc is the increment in index
 
-                //// create side tri 1
-                VertexList[12 * i + 3] = new VertexPositionColor(lastPosition, Color.Gray);
-                VertexList[12 * i + 4] = new VertexPositionColor(newPosition, Color.Gray);  // new coord
-                VertexList[12 * i + 5] = new VertexPositionColor(new Vector3(lastPosition.X, lastPosition.Y + Height, lastPosition.Z), Color.Gray);  // last coord
+                // create side tri 1
+                VertexList[12 * i + 3] = new VertexPositionColor(lastPosition, sideColor);
+                VertexList[12 * i + 4] = new VertexPositionColor(newPosition, sideColor);  // new coord
+                VertexList[12 * i + 5] = new VertexPositionColor(new Vector3(lastPosition.X, lastPosition.Y + Height, lastPosition.Z), sideColor);  // last coord
 
                 // create side tri 2
-                VertexList[12 * i + 6] = new VertexPositionColor(new Vector3(lastPosition.X, lastPosition.Y + Height, lastPosition.Z), Color.Gray);
-                VertexList[12 * i + 7] = new VertexPositionColor(newPosition, Color.Gray);  // last coord
-                VertexList[12 * i + 8] = new VertexPositionColor(new Vector3(newPosition.X, newPosition.Y + Height, newPosition.Z), Color.Gray);  // new coord
+                VertexList[12 * i + 6] = new VertexPositionColor(new Vector3(lastPosition.X, lastPosition.Y + Height, lastPosition.Z), sideColor);
+                VertexList[12 * i + 7] = new VertexPositionColor(newPosition, sideColor);  // last coord
+                VertexList[12 * i + 8] = new VertexPositionColor(new Vector3(newPosition.X, newPosition.Y + Height, newPosition.Z), sideColor);  // new coord
 
                 // create top cap
                 VertexList[12 * i + 9] = new VertexPositionColor(new Vector3(0.0f, Height, 0.0f), Color.Blue);  // center coord
                 VertexList[12 * i + 10] = new VertexPositionColor(new Vector3(lastPosition.X, lastPosition.Y + Height, lastPosition.Z), Color.Blue);  // new coord
                 VertexList[12 * i + 11] = new VertexPositionColor(new Vector3(newPosition.X, newPosition.Y + Height, newPosition.Z), Color.Blue);  // last coord
 
+                // update the last position with the new one
                 lastPosition = newPosition;
 
             }
