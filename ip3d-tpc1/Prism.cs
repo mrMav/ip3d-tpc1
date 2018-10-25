@@ -25,9 +25,14 @@ namespace ip3d_tpc1
         // if true, a geometry update is needed
         bool DirtyGeometry;
 
-        // the current model rotation        
+        // the current model position        
+        Vector3 ModelPosition;
+
+        // the current model orientation
         Vector3 ModelRotation;
-        // TODO: add some scale and position for some fun
+
+        // the current model scale
+        Vector3 ModelScale;
 
         // world transform or matrix is the matrix we will multiply 
         // our vertices for. this transforms the vertices from local
@@ -38,25 +43,29 @@ namespace ip3d_tpc1
         // the vertex is not a position, it is named after it.
         // we could store any values we want and interpet those values in
         // the shader as we want.
-        // in this case, we create a list of vertices to hold a position and a color
-        // giving us two vector3. if we were using vertexbuffers, our stride would be of 6
-        VertexPositionColor[] VertexList;
+        // in this case, we create a list of vertices to hold a position, a normal and a texture coordinate
+        // giving us two vector3 and one vector3
+        VertexPositionNormalTexture[] VertexList;
+
+        // we are also going to use indexed drawing
+        // for that we create an indices list
+        short[] IndicesList;
 
         // the effect(shader) to apply when rendering
         // we will use Monogame built in BasicEffect for the purpose
+        BasicEffect TextureShaderEffect;
+
+        // this shader will be used for rendering wireframe
         BasicEffect ColorShaderEffect;
+
+        // the texture to render
+        Texture2D Texture;
 
         // wireframe rendering toogle
         bool ShowWireframe;
-
-        // an array containing colors available for drawing
-        Color[] ColorArray;
-
-        // used to detect 'just' pressed keys
-        KeyboardState OldKeyboardState;
-
+        
         // constructor
-        public Prism(Game game, float radius = 5f, float height = 10f, int sides = 3) : base(game)
+        public Prism(Game game, string textureKey, float radius = 5f, float height = 10f, int sides = 3) : base(game)
         {
 
             // basic assign
@@ -65,19 +74,22 @@ namespace ip3d_tpc1
             Sides = sides;
             DirtyGeometry = false;
 
-            ModelRotation = Vector3.Zero;            
-            WorldTransform = Matrix.Identity;  // hey, I know this word from Algebra!
+            ModelPosition = Vector3.Zero;
+            ModelRotation = Vector3.Zero;
+            ModelScale    = new Vector3(1);            
 
-            // create amd setting up the effect settings
+            WorldTransform = Matrix.Identity;
+
+            // create and setting up the effect settings
             ColorShaderEffect = new BasicEffect(game.GraphicsDevice);  
             ColorShaderEffect.LightingEnabled = false;  // we won't be using light. we would need normals for that
             ColorShaderEffect.VertexColorEnabled = true;  // we do want color though
             ShowWireframe = true;  // enable out of the box wireframe
 
-            OldKeyboardState = Keyboard.GetState();
+            TextureShaderEffect = new BasicEffect(game.GraphicsDevice);
+            TextureShaderEffect.LightingEnabled = true;
+            TextureShaderEffect.VertexColorEnabled = false;
 
-            // create the array
-            ColorArray = CreateColorArray();
 
             // create the geometry
             CreateGeometry();

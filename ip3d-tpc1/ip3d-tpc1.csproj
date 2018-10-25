@@ -42,7 +42,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BasicCamera.cs" />
+    <Compile Include="CircleMesh.cs" />
+    <Compile Include="CustomMesh.cs" />
     <Compile Include="Game1.cs" />
+    <Compile Include="Model.cs" />
     <Compile Include="Prism.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
