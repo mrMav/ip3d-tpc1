@@ -44,6 +44,13 @@ namespace ip3d_tpc1
         // for that we create an indices list
         protected short[] IndicesList;
 
+        // the buffers to send to gpu
+        // the vertices:
+        protected VertexBuffer VertexBuffer;
+
+        // indicex buffer
+        protected IndexBuffer IndexBuffer;
+
         // wireframe rendering toogle
         public bool ShowWireframe;
 
@@ -88,5 +95,31 @@ namespace ip3d_tpc1
 
         }
 
+        public void ReverseWinding()
+        {
+
+            if(IndicesList.Length < 3)
+            {
+                return;
+            }
+
+            for(int i = 0; i < IndicesList.Length; i += 3)
+            {
+
+                short a = IndicesList[i + 1];
+                short b = IndicesList[i + 2];
+
+                IndicesList[i + 1] = b;
+                IndicesList[i + 2] = a;
+
+            }
+
+            Game.GraphicsDevice.Indices = null;
+
+            IndexBuffer.SetData<short>(IndicesList);
+            
+        }
+
     }
+
 }

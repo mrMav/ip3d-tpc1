@@ -1,10 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ip3d_tpc1
 {
@@ -23,10 +19,7 @@ namespace ip3d_tpc1
         // the effect(shader) to apply when rendering
         // we will use Monogame built in BasicEffect for the purpose
         BasicEffect TextureShaderEffect;
-
-        // this shader will be used for rendering wireframe
-        BasicEffect ColorShaderEffect;
-
+        
         // the texture to render
         Texture2D Texture;
         
@@ -37,21 +30,36 @@ namespace ip3d_tpc1
             Radius = radius;
             Sides = sides;
 
-            Texture = game.Content.Load<Texture2D>("textureKey");
-
-            // create and setting up the effect settings
-            ColorShaderEffect = new BasicEffect(game.GraphicsDevice);
-            ColorShaderEffect.LightingEnabled = false;
-            ColorShaderEffect.VertexColorEnabled = true;
-
-            ShowWireframe = true;
-
+            Texture = game.Content.Load<Texture2D>(textureKey);
+            
             TextureShaderEffect = new BasicEffect(game.GraphicsDevice);
-            TextureShaderEffect.LightingEnabled = true;
+            TextureShaderEffect.LightingEnabled = false;
             TextureShaderEffect.VertexColorEnabled = false;
+            TextureShaderEffect.TextureEnabled = true;
+            TextureShaderEffect.Texture = Texture;
 
             CreateGeometry();
 
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
+
+            Game.GraphicsDevice.SetVertexBuffer(VertexBuffer);
+            Game.GraphicsDevice.Indices = IndexBuffer;
+
+            TextureShaderEffect.CurrentTechnique.Passes[0].Apply();
+
+            Game.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, VertexList.Length);
+
+        }
+
+        // updates the effect matrices
+        public void UpdateShaderMatrices(Matrix viewTransform, Matrix projectionTransform)
+        {
+            TextureShaderEffect.Projection = projectionTransform;
+            TextureShaderEffect.View = viewTransform;
+            TextureShaderEffect.World = WorldTransform;
         }
 
         public override void CreateGeometry()
@@ -87,7 +95,7 @@ namespace ip3d_tpc1
             for (int i = 0; i < Sides; i++)
             {
                 // we divide a unit circle circunference length by the number of sides
-                float segment = pi2 / Sides; // this gives the next arc length
+                float segment = pi2 / Sides * i; // this gives the next arc length
 
                 float x = (float)Math.Cos(segment) * Radius;  // apply cos to the arc length, and get the x value from the arc center
                 float z = (float)Math.Sin(segment) * Radius;  // same but sin
@@ -99,7 +107,7 @@ namespace ip3d_tpc1
                 Vector2 uv = new Vector2(x / (2 * Radius) + 0.5f, z / (2 * Radius) + 0.5f);
 
                 // store the vertex
-                VertexList[i + 1] = new VertexPositionNormalTexture(newPosition, Vector3.Up, uv);
+                VertexList[i + 1] = new VertexPositionNormalTexture(new Vector3(x, 0.0f, z), Vector3.Up, uv);
                 
             }
 
@@ -107,14 +115,23 @@ namespace ip3d_tpc1
             for(int i = 0; i < Sides; i++)
             {
 
-                IndicesList[i + 0] = 0;  // the middle;
-                IndicesList[i + 1] = (short)(i + 1);
-                IndicesList[i + 2] = (short)(((i + 1) % (Sides + 1)) + 1);
+                // making the triangle winding clockwise
+
+                IndicesList[3 * i + 0] = 0;  // the middle;
+                IndicesList[3 * i + 1] = (short)(i + 1);  // this one will never need to repeat
+                IndicesList[3 * i + 2] = (short)(((i + 2) - 1) % Sides + 1); // this gives the next and repeats if necessary
 
             }
 
+            // set the buffers
+            VertexBuffer = new VertexBuffer(Game.GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, VertexList.Length, BufferUsage.WriteOnly);
+            VertexBuffer.SetData<VertexPositionNormalTexture>(VertexList);
+
+            IndexBuffer = new IndexBuffer(Game.GraphicsDevice, typeof(short), IndicesList.Length, BufferUsage.WriteOnly);
+            IndexBuffer.SetData<short>(IndicesList);
 
         }
 
     }
+
 }

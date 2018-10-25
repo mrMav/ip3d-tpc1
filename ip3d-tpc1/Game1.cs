@@ -18,8 +18,12 @@ namespace ip3d_tpc1
 
         // our camera class, check BasicCamera.cs
         BasicCamera camera;
-        // our prism class, check Prism.cs
-        Prism prism;
+
+        // disc
+        CircleMesh disc;
+
+        CircleMesh disc2;
+
         
         public Game1()
         {
@@ -53,14 +57,17 @@ namespace ip3d_tpc1
             rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
             GraphicsDevice.RasterizerState = rasterizerState;
 
-            // create the prism object and add it to the component system of the game
-            prism = new Prism(this, 5f, 10f, 5);
-            Components.Add(prism);
+            disc = new CircleMesh(null, this, "checker", 10f, 3);
+            disc.ReverseWinding();  // I'm actually proud by thinking on this
+
+            disc2 = new CircleMesh(null, this, "checker", 8f, 8);
+
 
             // create the camera object and add it aswell to the component system
             // we update the target to fit the model in the scren
             camera = new BasicCamera(this, 45f, 20f);
-            camera.Target.Y = prism.Height / 2;
+            camera.Target.Y = 0;
+            camera.RotateCamera = true;
             Components.Add(camera);                        
             
             base.Initialize();
@@ -90,7 +97,8 @@ namespace ip3d_tpc1
             
             // here we update the object shader(effect) matrices
             // so it can perform the space calculations on the vertices
-            prism.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
+            disc.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
+            disc2.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
 
         }
 
@@ -100,7 +108,8 @@ namespace ip3d_tpc1
             GraphicsDevice.Clear(new Color(0.15f, 0.15f, 0.15f));
             
             // draw the object
-            prism.Draw(gameTime);
+            disc.Draw(gameTime);
+            disc2.Draw(gameTime);
 
             // render the gui text
             // notive the DepthStencilState, without default set in, depth will not 
@@ -108,7 +117,7 @@ namespace ip3d_tpc1
             // more investigation needs to be done in order to understand why Monogame
             // is doing it this way.
             spriteBatch.Begin(SpriteSortMode.Deferred, null, null, DepthStencilState.Default, null, null, null);
-            spriteBatch.DrawString(font, $"Press 1(X), 2(Y) or 3(Z) to rotate the model.\nPress R to reset rotation.\nPress C to toogle camera animation.\nPress W to toogle wireframe.\nPress + and - to add sides to the object ({prism.Sides}).", new Vector2(10f, 10f), new Color(0f, 1f, 0f));
+            spriteBatch.DrawString(font, $"Press 1(X), 2(Y) or 3(Z) to rotate the model.\nPress R to reset rotation.\nPress C to toogle camera animation.\nPress W to toogle wireframe.\nPress + and - to add sides to the object ({disc.Sides}).", new Vector2(10f, 10f), new Color(0f, 1f, 0f));
             spriteBatch.End();
                        
             base.Draw(gameTime);

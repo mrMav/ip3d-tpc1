@@ -24,7 +24,7 @@ namespace ip3d_tpc1
         float SphereRadius;
 
         // trigger to toogle between animated camera or not
-        bool RotateCamera;
+        public bool RotateCamera;
 
         // used to detect 'just' pressed keys
         KeyboardState OldKeyboardState;
@@ -37,7 +37,7 @@ namespace ip3d_tpc1
             SphereRadius = sphereRadius;
             RotateCamera = true;
             
-            Position = new Vector3(0f, 0f, -SphereRadius);
+            Position = new Vector3(sphereRadius, sphereRadius, -SphereRadius);
             Target = Vector3.Zero;
 
             // view matrix is calculated with a LookAt method. It allows
