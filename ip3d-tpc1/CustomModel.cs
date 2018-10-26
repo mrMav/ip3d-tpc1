@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ip3d_tpc1
+namespace ip3d_tpc2
 {
     /// <summary>
     /// Holds a list of meshes and has a world matrix that affects those meshes.

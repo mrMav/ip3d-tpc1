@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 
-namespace ip3d_tpc1
+namespace ip3d_tpc2
 {
     public class Game1 : Game
     {

@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace ip3d_tpc1
+namespace ip3d_tpc2
 {
     class CircleMesh : CustomMesh
     {

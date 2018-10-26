@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace ip3d_tpc1
+namespace ip3d_tpc2
 {
     /*
      * Cameras Base Class

@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace ip3d_tpc1
+namespace ip3d_tpc2
 {
     /// <summary>
     /// The plane class creates a plane primitive in the XZ plane.

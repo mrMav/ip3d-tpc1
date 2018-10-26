@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ip3d_tpc1
+namespace ip3d_tpc2
 {
 #if WINDOWS || LINUX
     /// <summary>

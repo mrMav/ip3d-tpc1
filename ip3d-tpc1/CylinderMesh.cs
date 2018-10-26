@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace ip3d_tpc1
+namespace ip3d_tpc2
 {
     class CylinderMesh : CustomMesh
     {
