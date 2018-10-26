@@ -19,6 +19,7 @@ namespace ip3d_tpc1
         // the texture to render
         Texture2D Texture;
 
+        // constructor
         public CylinderMesh(CustomModel parentModel, Game game, string textureKey, float radius = 5f, float height = 10f, int sides = 3) : base(parentModel, game)
         {
 
@@ -26,6 +27,8 @@ namespace ip3d_tpc1
             Radius = radius;
             Height = height;
             Sides = sides;
+
+            // load and define material proeperties
 
             Texture = game.Content.Load<Texture2D>(textureKey);
 
@@ -47,6 +50,7 @@ namespace ip3d_tpc1
 
             TextureShaderEffect.CurrentTechnique.Passes[0].Apply();
 
+            // draw with a triangle strip
             Game.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleStrip, 0, 0, VertexList.Length + 1);
 
         }
@@ -123,7 +127,7 @@ namespace ip3d_tpc1
             VertexList[VertexList.Length - 1] = b;
 
             // adjust scale. just a preference to change when using different textures
-            ScaleUVs(new Vector2(1f, 6f));
+            ScaleUVs(new Vector2(1f, 1.5f));
 
             /*
              * Now we will create the indices.

@@ -53,11 +53,7 @@ namespace ip3d_tpc1
 
         // the effect(shader) to apply when rendering
         // we will use Monogame built in BasicEffect for the purpose
-        public BasicEffect TextureShaderEffect;
-
-        // wireframe rendering toogle
-        public bool ShowWireframe;
-
+        public BasicEffect TextureShaderEffect;        
 
         public CustomMesh(CustomModel model, Game game)
         {
@@ -73,8 +69,7 @@ namespace ip3d_tpc1
             ModelRotation = Vector3.Zero;
             ModelScale    = new Vector3(1);
 
-            WorldTransform = Matrix.Identity;
-            
+            WorldTransform = Matrix.Identity;            
 
         }
 
@@ -120,6 +115,11 @@ namespace ip3d_tpc1
 
         }
 
+        /// <summary>
+        /// Reverses the winding of the mesh polygons.
+        /// Optionaly reverses the vertices normal.
+        /// </summary>
+        /// <param name="reverseNormal"></param>
         public void ReverseWinding(bool reverseNormal = false)
         {
 
@@ -159,6 +159,10 @@ namespace ip3d_tpc1
             
         }
 
+        /// <summary>
+        /// Scales the texture coordinates by X and Y of the given Vector2
+        /// </summary>
+        /// <param name="scale"></param>
         public void ScaleUVs(Vector2 scale)
         {
 

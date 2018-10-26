@@ -26,6 +26,8 @@ namespace ip3d_tpc1
             Radius = radius;
             Sides = sides;
 
+            // load and set material properties
+
             Texture = game.Content.Load<Texture2D>(textureKey);
             
             TextureShaderEffect = new BasicEffect(game.GraphicsDevice);
@@ -46,6 +48,7 @@ namespace ip3d_tpc1
 
             TextureShaderEffect.CurrentTechnique.Passes[0].Apply();
 
+            // draw with a triangle list
             Game.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, VertexList.Length);
 
         }
@@ -75,6 +78,9 @@ namespace ip3d_tpc1
                 IndicesList[3 * i + 2] = (short)(((i + 2) - 1) % Sides + 1); // this gives the next and repeats if necessary
 
             }
+
+            // scale the uv's
+            ScaleUVs(new Vector2(0.35f));
 
             // set the buffers
             VertexBuffer = new VertexBuffer(Game.GraphicsDevice, VertexPositionNormalTexture.VertexDeclaration, VertexList.Length, BufferUsage.WriteOnly);

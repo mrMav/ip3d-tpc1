@@ -67,7 +67,6 @@ namespace ip3d_tpc1
             {
                 
                 // update mesh world transform
-
                 m.Update(gameTime);
 
             }
@@ -87,7 +86,7 @@ namespace ip3d_tpc1
 
         }
 
-
+        // draw all children
         public void Draw(GameTime gameTime)
         {
 

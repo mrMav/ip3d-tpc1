@@ -9,10 +9,10 @@ namespace ip3d_tpc1
     /// </summary>
     public static class Controls
     {
-        public static Keys Forward = Keys.W;
-        public static Keys Backward = Keys.S;
-        public static Keys StrafeLeft = Keys.A;
-        public static Keys StrafeRight = Keys.D;
+        public static Keys Forward = Keys.Up;
+        public static Keys Backward = Keys.Down;
+        public static Keys RotateLeft = Keys.Left;
+        public static Keys RotateRight = Keys.Right;
 
         public static Keys CameraRotateYCW = Keys.Right;
         public static Keys CameraRotateYCCW = Keys.Left;

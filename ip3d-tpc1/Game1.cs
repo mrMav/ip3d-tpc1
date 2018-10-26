@@ -17,13 +17,13 @@ namespace ip3d_tpc1
         SpriteFont font;
 
         // our camera class, check BasicCamera.cs
-        FreeCamera camera;
-
-        CircleMesh disc;
-        CircleMesh disc2;
-        CylinderMesh cylinder;
-
+        BasicCamera camera;
+        
+        // the prism
         CylinderModel cylinderModel;
+
+        // plane
+        Plane plane;
 
         // absolute axis
         Axis3D worldAxis;
@@ -46,7 +46,7 @@ namespace ip3d_tpc1
         private void Graphics_PreparingDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
         {
             graphics.PreferMultiSampling = true;
-            e.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 2;
+            e.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 8;
         }
 
         protected override void Initialize()
@@ -54,34 +54,24 @@ namespace ip3d_tpc1
                                    
             Window.Title = "EP3D-TPC2 - JORGE NORO - 15705";
             IsMouseVisible = false;
-
-            // ensure that the culling is happening for counterclockwise polygons
-            RasterizerState rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.None;
-            GraphicsDevice.RasterizerState = rasterizerState;
-
-            //disc = new CircleMesh(null, this, "checker", 5f, 60);
-            //disc.ReverseWinding();  // I'm actually proud by thinking on this
-            //disc.ModelPosition = new Vector3(0, 5f, 0);
-
-            //disc2 = new CircleMesh(null, this, "checker", 5f, 60);
-            //disc2.ReverseWinding();
-
-            //cylinder = new CylinderMesh(null, this, "checker", 5f, 5f, 60);
-
+                        
             // create the camera object and add it aswell to the component system
             // we update the target to fit the model in the scren
-            camera = new FreeCamera(this, 45f);
-            camera.Position.Z = 10f;
+            camera = new BasicCamera(this, 45f, 75f);            
+            camera.RotateCamera = false;
 
             // initialize the axis and add it to the componetens manager
             worldAxis = new Axis3D(this, Vector3.Zero, 200f);
             Components.Add(worldAxis);
 
-            cylinderModel = new CylinderModel(this, 5f, 10f, 6);
-            //cylinderModel.ModelRotation.X = 45f;
+            // init
+            cylinderModel = new CylinderModel(this, 7.5f, 30f, 16);
+
+            // init
+            plane = new Plane(null, this, "checker2", 150f, 150f, 1, 1);            
 
             // init controls
+            Mouse.SetPosition(Window.Position.X + (graphics.PreferredBackBufferWidth / 2), Window.Position.Y + (graphics.PreferredBackBufferHeight / 2));
             Controls.Initilalize();
 
             base.Initialize();
@@ -95,7 +85,6 @@ namespace ip3d_tpc1
             // font loading
             font = Content.Load<SpriteFont>("font");
 
-
         }
 
         protected override void UnloadContent()
@@ -105,6 +94,7 @@ namespace ip3d_tpc1
 
         protected override void Update(GameTime gameTime)
         {
+            base.Update(gameTime);
 
             // set the current keyboard state
             Controls.UpdateCurrentStates();
@@ -112,24 +102,17 @@ namespace ip3d_tpc1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             
-            // first, we update the base, so our components are all good and updated
-            base.Update(gameTime);
-
-            // locking the mouse only after the components are updated
+            // locking the mouse
             Mouse.SetPosition(Window.Position.X + (graphics.PreferredBackBufferWidth / 2), Window.Position.Y + (graphics.PreferredBackBufferHeight / 2));
-
-            // here we update the object shader(effect) matrices
-            // so it can perform the space calculations on the vertices
-            //disc.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
-            //disc.Update(gameTime);
-
-            //disc2.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
-            //cylinder.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
-
-
+            
+            /*
+             * Update game objects
+             */ 
 
             cylinderModel.Update(gameTime);
             cylinderModel.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
+
+            plane.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
 
             worldAxis.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
 
@@ -145,20 +128,19 @@ namespace ip3d_tpc1
             // clear frame
             GraphicsDevice.Clear(new Color(0.15f, 0.15f, 0.15f));
 
-            // draw the object
-            //disc.Draw(gameTime);
-            //disc2.Draw(gameTime);
-            //cylinder.Draw(gameTime);
+            /*
+             * Draw game objects
+             */ 
 
             cylinderModel.Draw(gameTime);
 
-            // render the gui text
-            // notive the DepthStencilState, without default set in, depth will not 
-            // be calculated when drawing wireframes.
-            // more investigation needs to be done in order to understand why Monogame
-            // is doing it this way.
+            plane.Draw(gameTime);
+
+            /*
+             * Draw gui text
+             */ 
             spriteBatch.Begin(SpriteSortMode.Deferred, null, null, DepthStencilState.Default, null, null, null);
-            //spriteBatch.DrawString(font, $"Press 1(X), 2(Y) or 3(Z) to rotate the model.\nPress R to reset rotation.\nPress C to toogle camera animation.\nPress W to toogle wireframe.\nPress + and - to add sides to the object ({cylinderModel.Sides}).", new Vector2(10f, 10f), new Color(0f, 1f, 0f));
+            spriteBatch.DrawString(font, $"Press SPACE to toggle camera rotation.\nPress Up and Down arrows to move the cylinder.\nPress Left and Right arrows to change cylinder orientation.", new Vector2(10f, 10f), new Color(0f, 1f, 0f));
             spriteBatch.End();
                        
             base.Draw(gameTime);

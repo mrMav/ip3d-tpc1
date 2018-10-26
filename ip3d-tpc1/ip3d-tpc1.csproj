@@ -49,10 +49,9 @@
     <Compile Include="CustomMesh.cs" />
     <Compile Include="CylinderMesh.cs" />
     <Compile Include="CylinderModel.cs" />
-    <Compile Include="FreeCamera.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="CustomModel.cs" />
-    <Compile Include="Prism.cs" />
+    <Compile Include="Plane.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils.cs" />
