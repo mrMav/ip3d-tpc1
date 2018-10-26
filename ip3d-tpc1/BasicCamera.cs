@@ -69,6 +69,7 @@ namespace ip3d_tpc1
                 Position.X = (float)Math.Sin(gameTime.TotalGameTime.TotalMilliseconds * 0.001f) * SphereRadius;
                 Position.Z = (float)Math.Cos(gameTime.TotalGameTime.TotalMilliseconds * 0.001f) * SphereRadius;
                 Position.Y = (float)Math.Cos(gameTime.TotalGameTime.TotalMilliseconds * 0.00025f) * SphereRadius;
+                //Position.Y = SphereRadius;
 
                 // finnaly, update the view matrix
                 ViewTransform = Matrix.CreateLookAt(Position, Target, Vector3.Up);

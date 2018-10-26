@@ -41,14 +41,20 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Axis3D.cs" />
     <Compile Include="BasicCamera.cs" />
+    <Compile Include="Camera.cs" />
     <Compile Include="CircleMesh.cs" />
+    <Compile Include="Controls.cs" />
     <Compile Include="CustomMesh.cs" />
+    <Compile Include="CylinderMesh.cs" />
+    <Compile Include="FreeCamera.cs" />
     <Compile Include="Game1.cs" />
-    <Compile Include="Model.cs" />
+    <Compile Include="CustomModel.cs" />
     <Compile Include="Prism.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

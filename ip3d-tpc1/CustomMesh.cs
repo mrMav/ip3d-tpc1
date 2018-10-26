@@ -84,7 +84,17 @@ namespace ip3d_tpc1
         public virtual void Update(GameTime gameTime)
         {
 
+            Matrix rotation = Matrix.CreateFromYawPitchRoll(
+                MathHelper.ToRadians(ModelRotation.Y),
+                MathHelper.ToRadians(ModelRotation.X),
+                MathHelper.ToRadians(ModelRotation.Z)
+            );
 
+            Matrix translation = Matrix.CreateTranslation(ModelPosition);
+
+            Matrix scale = Matrix.CreateScale(ModelScale);
+
+            WorldTransform = scale * rotation * translation;
 
         }
 
@@ -118,6 +128,19 @@ namespace ip3d_tpc1
 
             IndexBuffer.SetData<short>(IndicesList);
             
+        }
+
+        public void ScaleUVs(Vector2 scale)
+        {
+
+            for(int i = 0; i < VertexList.Length; i++)
+            {
+
+                VertexList[i].TextureCoordinate.X /= scale.X;
+                VertexList[i].TextureCoordinate.Y /= scale.Y;
+
+            }
+
         }
 
     }

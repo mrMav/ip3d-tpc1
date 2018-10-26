@@ -17,13 +17,14 @@ namespace ip3d_tpc1
         SpriteFont font;
 
         // our camera class, check BasicCamera.cs
-        BasicCamera camera;
+        FreeCamera camera;
 
-        // disc
         CircleMesh disc;
-
         CircleMesh disc2;
+        CylinderMesh cylinder;
 
+        // absolute axis
+        Axis3D worldAxis;
         
         public Game1()
         {
@@ -34,7 +35,7 @@ namespace ip3d_tpc1
             // reference: http://community.monogame.net/t/solved-anti-aliasing/10561
             // state that we will use a HiDef profile, check here the difs:
             // https://blogs.msdn.microsoft.com/shawnhar/2010/03/12/reach-vs-hidef/
-            graphics.GraphicsProfile = GraphicsProfile.HiDef;
+            graphics.GraphicsProfile = GraphicsProfile.Reach;
             graphics.PreparingDeviceSettings += Graphics_PreparingDeviceSettings;
             graphics.ApplyChanges();            
         }
@@ -43,33 +44,40 @@ namespace ip3d_tpc1
         private void Graphics_PreparingDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
         {
             graphics.PreferMultiSampling = true;
-            e.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 8;
+            e.GraphicsDeviceInformation.PresentationParameters.MultiSampleCount = 2;
         }
 
         protected override void Initialize()
         {
                                    
-            Window.Title = "EP3D-TPC1 - JORGE NORO - 15705";
-            IsMouseVisible = true;
+            Window.Title = "EP3D-TPC2 - JORGE NORO - 15705";
+            IsMouseVisible = false;
 
             // ensure that the culling is happening for counterclockwise polygons
             RasterizerState rasterizerState = new RasterizerState();
-            rasterizerState.CullMode = CullMode.CullCounterClockwiseFace;
+            rasterizerState.CullMode = CullMode.None;
             GraphicsDevice.RasterizerState = rasterizerState;
 
-            disc = new CircleMesh(null, this, "checker", 10f, 3);
-            disc.ReverseWinding();  // I'm actually proud by thinking on this
+            disc = new CircleMesh(null, this, "checker", 5f, 60);
+            //disc.ReverseWinding();  // I'm actually proud by thinking on this
+            disc.ModelPosition = new Vector3(0, 5f, 0);
 
-            disc2 = new CircleMesh(null, this, "checker", 8f, 8);
+            disc2 = new CircleMesh(null, this, "checker", 5f, 60);
+            disc2.ReverseWinding();
 
+            cylinder = new CylinderMesh(null, this, "checker", 5f, 5f, 60);
 
             // create the camera object and add it aswell to the component system
             // we update the target to fit the model in the scren
-            camera = new BasicCamera(this, 45f, 20f);
-            camera.Target.Y = 0;
-            camera.RotateCamera = true;
-            Components.Add(camera);                        
-            
+            camera = new FreeCamera(this, 45f);
+
+            // initialize the axis and add it to the componetens manager
+            worldAxis = new Axis3D(this, Vector3.Zero, 200f);
+            Components.Add(worldAxis);
+
+            // init controls
+            Controls.Initilalize();
+
             base.Initialize();
         }
 
@@ -80,6 +88,8 @@ namespace ip3d_tpc1
 
             // font loading
             font = Content.Load<SpriteFont>("font");
+
+
         }
 
         protected override void UnloadContent()
@@ -89,16 +99,33 @@ namespace ip3d_tpc1
 
         protected override void Update(GameTime gameTime)
         {
+
+            // set the current keyboard state
+            Controls.UpdateCurrentStates();
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             
             // first, we update the base, so our components are all good and updated
             base.Update(gameTime);
-            
+
+            // locking the mouse only after the components are updated
+            Mouse.SetPosition(Window.Position.X + (graphics.PreferredBackBufferWidth / 2), Window.Position.Y + (graphics.PreferredBackBufferHeight / 2));
+
             // here we update the object shader(effect) matrices
             // so it can perform the space calculations on the vertices
             disc.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
+            disc.Update(gameTime);
+
             disc2.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
+            cylinder.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
+
+            worldAxis.UpdateShaderMatrices(camera.ViewTransform, camera.ProjectionTransform);
+
+            camera.Update(gameTime);
+
+            // set the last keyboard state
+            Controls.UpdateLastStates();
 
         }
 
@@ -110,6 +137,7 @@ namespace ip3d_tpc1
             // draw the object
             disc.Draw(gameTime);
             disc2.Draw(gameTime);
+            cylinder.Draw(gameTime);
 
             // render the gui text
             // notive the DepthStencilState, without default set in, depth will not 
