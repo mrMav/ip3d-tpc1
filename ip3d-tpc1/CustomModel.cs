@@ -12,23 +12,23 @@ namespace ip3d_tpc1
     /// </summary>
     class CustomModel : GameComponent
     {
-        
-        // the current model position        
-        Vector3 ModelPosition;
+
+        // the current model position
+        public Vector3 ModelPosition;
 
         // the current model orientation
-        Vector3 ModelRotation;
+        public Vector3 ModelRotation;
 
         // the current model scale
-        Vector3 ModelScale;
+        public Vector3 ModelScale;
 
         // world transform or matrix is the matrix we will multiply 
         // our vertices for. this transforms the vertices from local
         // space to world space
-        Matrix WorldTransform;
+        public Matrix WorldTransform;
 
         // the meshes
-        List<CustomMesh> Meshes;
+        protected List<CustomMesh> Meshes;
 
         public CustomModel(Game game) : base(game)
         {
@@ -49,6 +49,20 @@ namespace ip3d_tpc1
         {
             base.Update(gameTime);
 
+            // update the model transform
+            Matrix rotation = Matrix.CreateFromYawPitchRoll(
+                MathHelper.ToRadians(ModelRotation.Y),
+                MathHelper.ToRadians(ModelRotation.X),
+                MathHelper.ToRadians(ModelRotation.Z)
+            );
+
+            Matrix translation = Matrix.CreateTranslation(ModelPosition);
+
+            Matrix scale = Matrix.CreateScale(ModelScale);
+
+            WorldTransform = scale * rotation * translation;
+            
+            // update childs
             foreach (CustomMesh m in Meshes)
             {
                 
@@ -59,6 +73,20 @@ namespace ip3d_tpc1
             }
 
         }
+
+        // updates the effect matrices
+        public void UpdateShaderMatrices(Matrix viewTransform, Matrix projectionTransform)
+        {
+
+            foreach (CustomMesh m in Meshes)
+            {
+
+                m.UpdateShaderMatrices(viewTransform, projectionTransform);
+
+            }
+
+        }
+
 
         public void Draw(GameTime gameTime)
         {

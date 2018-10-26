@@ -15,11 +15,7 @@ namespace ip3d_tpc1
         // the dimensions
         public float Radius;
         public int Sides;
-
-        // the effect(shader) to apply when rendering
-        // we will use Monogame built in BasicEffect for the purpose
-        BasicEffect TextureShaderEffect;
-        
+                
         // the texture to render
         Texture2D Texture;
         
@@ -54,20 +50,16 @@ namespace ip3d_tpc1
 
         }
 
-        // updates the effect matrices
-        public void UpdateShaderMatrices(Matrix viewTransform, Matrix projectionTransform)
-        {
-            TextureShaderEffect.Projection = projectionTransform;
-            TextureShaderEffect.View = viewTransform;
-            TextureShaderEffect.World = WorldTransform;
-        }
-
         public override void CreateGeometry()
         {
             base.CreateGeometry();
 
             // first, the array of vertices is created
             VertexList = Utils.CreateCircleVertices(Radius, Sides);  // see function source for full details
+
+            // adjust to current texture
+            // gives freedom to developers
+            ScaleUVs(new Vector2(3f));
 
             IndicesList = new short[3 * Sides];  // three times slides because we will render this with an indexed triangle list.
                                                  // so we need 3 indices per vertex

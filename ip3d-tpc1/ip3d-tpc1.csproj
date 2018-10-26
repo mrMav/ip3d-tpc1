@@ -48,6 +48,7 @@
     <Compile Include="Controls.cs" />
     <Compile Include="CustomMesh.cs" />
     <Compile Include="CylinderMesh.cs" />
+    <Compile Include="CylinderModel.cs" />
     <Compile Include="FreeCamera.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="CustomModel.cs" />

@@ -51,6 +51,10 @@ namespace ip3d_tpc1
         // indicex buffer
         protected IndexBuffer IndexBuffer;
 
+        // the effect(shader) to apply when rendering
+        // we will use Monogame built in BasicEffect for the purpose
+        public BasicEffect TextureShaderEffect;
+
         // wireframe rendering toogle
         public bool ShowWireframe;
 
@@ -81,6 +85,14 @@ namespace ip3d_tpc1
 
         }
 
+        // updates the effect matrices
+        public void UpdateShaderMatrices(Matrix viewTransform, Matrix projectionTransform)
+        {
+            TextureShaderEffect.Projection = projectionTransform;
+            TextureShaderEffect.View = viewTransform;
+            TextureShaderEffect.World = WorldTransform;
+        }
+
         public virtual void Update(GameTime gameTime)
         {
 
@@ -96,6 +108,9 @@ namespace ip3d_tpc1
 
             WorldTransform = scale * rotation * translation;
 
+            // update with parent position
+            WorldTransform = WorldTransform * Parent.WorldTransform;
+
         }
 
         public virtual void Draw(GameTime gameTime)
@@ -105,7 +120,7 @@ namespace ip3d_tpc1
 
         }
 
-        public void ReverseWinding()
+        public void ReverseWinding(bool reverseNormal = false)
         {
 
             if(IndicesList.Length < 3)
@@ -113,6 +128,7 @@ namespace ip3d_tpc1
                 return;
             }
 
+            // reverses the order by which the triangle is drawn
             for(int i = 0; i < IndicesList.Length; i += 3)
             {
 
@@ -121,6 +137,19 @@ namespace ip3d_tpc1
 
                 IndicesList[i + 1] = b;
                 IndicesList[i + 2] = a;
+
+            }
+
+            if(reverseNormal)
+            {
+
+                // reverse the normal
+                for(int i = 0; i < VertexList.Length; i++)
+                {
+
+                    VertexList[i].Normal *= -1;
+
+                }
 
             }
 

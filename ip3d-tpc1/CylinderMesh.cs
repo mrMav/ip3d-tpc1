@@ -16,10 +16,6 @@ namespace ip3d_tpc1
         public float Height;
         public int Sides;
 
-        // the effect(shader) to apply when rendering
-        // we will use Monogame built in BasicEffect for the purpose
-        BasicEffect TextureShaderEffect;
-
         // the texture to render
         Texture2D Texture;
 
@@ -54,15 +50,7 @@ namespace ip3d_tpc1
             Game.GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleStrip, 0, 0, VertexList.Length + 1);
 
         }
-
-        // updates the effect matrices
-        public void UpdateShaderMatrices(Matrix viewTransform, Matrix projectionTransform)
-        {
-            TextureShaderEffect.Projection = projectionTransform;
-            TextureShaderEffect.View = viewTransform;
-            TextureShaderEffect.World = WorldTransform;
-        }
-
+        
         public override void CreateGeometry()
         {
             base.CreateGeometry();
@@ -84,6 +72,24 @@ namespace ip3d_tpc1
             {
                 // we also need to raise the height of the top vertices:
                 topVertices[i + 1].Position.Y = Height;
+
+                // now we will change the normal.
+                // by default, the function that creates the vertices gives
+                // us the normals facing upwards.
+                // fortunally for us, this is trivial:
+                /* 
+                 *   0 --- 1
+                 *  /       \
+                 * 5    6    2
+                 *  \       /
+                 *   4 --- 3
+                 * 
+                 * the normals will be the point is self after being normalized!
+                 * 
+                 */
+
+                topVertices[i + 1].Normal = Vector3.Normalize(topVertices[i + 1].Position);
+                bottomVertices[i + 1].Normal = Vector3.Normalize(topVertices[i + 1].Position);
 
                 // we must change the uv mapping as well.
                 // this will map a texture like this:
@@ -108,9 +114,9 @@ namespace ip3d_tpc1
             VertexPositionNormalTexture a = VertexList[0];
             VertexPositionNormalTexture b = VertexList[1];
 
-            a.TextureCoordinate.X = 1;
+            a.TextureCoordinate.X = 0;
 
-            b.TextureCoordinate.X = 1;
+            b.TextureCoordinate.X = 0;
             b.TextureCoordinate.Y = 1;
 
             VertexList[VertexList.Length - 2] = a;
